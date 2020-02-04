@@ -1,0 +1,73 @@
+<?xml version="1.0" encoding="utf-8"?>
+
+
+<ScrollView xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:background="#fbf6ff"
+    android:layout_height="match_parent">
+<RelativeLayout
+    android:layout_width="wrap_content"
+    android:layout_height="wrap_content">
+
+    <TextView
+        android:id="@+id/textView2"
+        android:layout_width="match_parent"
+        android:layout_marginLeft="5sp"
+        android:layout_marginRight="5sp"
+        android:layout_height="wrap_content"
+        android:layout_centerHorizontal="true"
+        android:fontFamily="@font/bgaramond"
+        android:gravity="center_horizontal"
+        android:layout_marginTop="80sp"
+        android:textSize="26sp"
+        android:text="ncgfhg"
+        android:textStyle="bold"
+        android:textColor="#000" />
+    <com.sit.update.MoveableFloatingActionButton
+        android:id="@+id/play"
+        android:layout_below="@+id/textView2"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_gravity="bottom|end"
+        android:layout_marginTop="80dp"
+        android:src="@drawable/play"/>
+
+    <ImageView
+        android:id="@+id/imageView2"
+        android:layout_width="match_parent"
+        android:layout_height="300sp"
+        android:layout_marginLeft="10sp"
+        android:layout_marginRight="10sp"
+        android:layout_below="@+id/textView2"
+        android:layout_marginTop="20sp" />
+
+    <TextView
+        android:id="@+id/textVie"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:text="Time"
+        android:layout_below="@+id/imageView2"
+        android:fontFamily="@font/garamond"
+        android:layout_centerHorizontal="true"
+        android:layout_marginTop="18sp"
+        android:layout_marginLeft="18sp"
+        android:layout_marginRight="18sp"
+        android:paddingRight="15sp"
+        android:textAlignment="textEnd"
+        android:textSize="18sp"/>
+
+
+    <TextView
+        android:id="@+id/textView3"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_below="@+id/textVie"
+        android:fontFamily="@font/garamond"
+        android:layout_centerHorizontal="true"
+        android:layout_marginTop="18sp"
+        android:layout_marginLeft="18sp"
+        android:layout_marginRight="18sp"
+        android:textSize="18sp"/>
+
+</RelativeLayout>
+</ScrollView>

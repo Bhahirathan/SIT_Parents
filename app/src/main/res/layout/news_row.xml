@@ -1,0 +1,73 @@
+<?xml version="1.0" encoding="utf-8"?>
+<androidx.cardview.widget.CardView xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:layout_height="340sp"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    android:orientation="vertical"
+    app:cardCornerRadius="25dp"
+    android:layout_margin="10dp"
+    android:elevation="90dp">
+
+    <RelativeLayout
+        android:layout_width="match_parent"
+        android:layout_height="340dp">
+        <ImageView
+            android:id="@+id/post_image"
+            android:layout_width="match_parent"
+            android:layout_height="230sp" />
+
+        <TextView
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:id="@+id/post_title"
+            android:layout_below="@id/post_image"
+            android:text="POST TITLE"
+            android:layout_marginTop="15dp"
+            android:layout_marginLeft="15dp"
+            android:layout_marginRight="15sp"
+            android:fontFamily="@font/montserrat"
+            android:paddingStart="5dp"
+            android:paddingLeft="5dp"
+            android:paddingEnd="5dp"
+            android:paddingRight="5dp"
+            android:textSize="17sp"
+            android:textColor="#000000"/>
+
+        <TextView
+            android:id="@+id/post_desc"
+            android:layout_width="match_parent"
+            android:layout_height="35dp"
+            android:layout_marginLeft="15dp"
+            android:layout_marginRight="15sp"
+            android:layout_below="@+id/post_title"
+            android:fontFamily="@font/montserratl"
+            android:paddingEnd="5dp"
+            android:paddingLeft="5dp"
+            android:paddingRight="5dp"
+            android:paddingStart="5dp"
+            android:text="DESCRIPTION"
+            android:gravity="fill_horizontal"
+            android:textColor="#000000" />
+        <TextView
+            android:id="@+id/post_time"
+            android:layout_width="match_parent"
+            android:layout_height="35dp"
+            android:layout_marginLeft="15dp"
+            android:layout_marginRight="15sp"
+            android:layout_below="@+id/post_desc"
+            android:fontFamily="@font/montserratl"
+            android:textAlignment="textEnd"
+            android:paddingTop="5sp"
+            android:paddingEnd="5dp"
+            android:paddingLeft="5dp"
+            android:paddingRight="5dp"
+            android:paddingStart="5dp"
+            android:text="Posted At:"
+            android:gravity="fill_horizontal"
+            android:textColor="#000000" />
+
+
+
+
+    </RelativeLayout>
+</androidx.cardview.widget.CardView>
