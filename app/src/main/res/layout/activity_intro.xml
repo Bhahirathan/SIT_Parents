@@ -1,0 +1,79 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    tools:context=".intro"
+    android:background="@drawable/gradient"
+    tools:layout_editor_absoluteX="0dp"
+    android:orientation="vertical"
+    tools:layout_editor_absoluteY="81dp"
+    tools:ignore="UseCompoundDrawables">
+    <TextView
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_gravity="center_horizontal"
+        android:textStyle="bold|italic"
+        android:layout_marginTop="45sp"
+        android:textColor="@color/cardview_dark_background"
+        android:text="Sethu Institute of Technology"
+        android:textSize="28sp"
+        android:textAppearance="@style/Widget.MaterialComponents.TextView"
+        tools:ignore="HardcodedText,PrivateResource" />
+    <TextView
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_gravity="center_horizontal"
+        android:textStyle="bold|italic"
+        android:textColor="@color/cardview_dark_background"
+        android:text="Knowledge Service Progress"
+        android:textSize="22sp"
+        android:layout_marginTop="5sp"
+        android:textAppearance="@style/Widget.MaterialComponents.TextView"
+        tools:ignore="HardcodedText,PrivateResource" />
+    <ImageView
+        android:layout_width="85sp"
+        android:layout_height="85sp"
+        android:layout_gravity="center_horizontal"
+        android:src="@drawable/logo"
+        android:contentDescription="@string/todo" />
+    <TextView
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_gravity="center_horizontal"
+        android:textStyle="bold|italic"
+        android:layout_marginTop="30sp"
+        android:textColor="@color/cardview_dark_background"
+        android:text="To promote excellence in the technical education and scientific research for the benefit of the society"
+        android:layout_marginLeft="20sp"
+        android:layout_marginRight="20sp"
+        android:gravity="center_horizontal"
+        android:textSize="20sp"
+        android:textAppearance="@style/Widget.MaterialComponents.TextView"
+        tools:ignore="HardcodedText,PrivateResource" />
+    <TextView
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_gravity="center_horizontal"
+        android:layout_marginTop="30sp"
+        android:textColor="@color/cardview_dark_background"
+        android:text="The purpose of education is to make an individual a unique personality so as to help the society with the vistas of new ideas. With this focus in mind and with the blessings of the Almighty, our zealous SETHU EDUCATIONAL TRUST established SETHU INSTITUTE OF TECHNOLOGY in the year 1995 at Pulloor-626 115, Kariapatti Taluk , Virudhunagar District"
+        android:layout_marginLeft="20sp"
+        android:layout_marginRight="20sp"
+        android:gravity="center_horizontal"
+        android:textSize="20sp"
+        android:textAppearance="@style/Widget.MaterialComponents.TextView"
+        tools:ignore="HardcodedText,PrivateResource" />
+    <com.google.android.material.button.MaterialButton
+        android:id="@+id/btn"
+        android:theme="@style/Theme.MaterialComponents"
+        style="@style/Widget.AppCompat.Button.Borderless.Colored"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_gravity="center_horizontal"
+        android:layout_marginTop="35sp"
+        android:layout_marginLeft="95sp"
+        android:text="Skip"
+        tools:ignore="HardcodedText,RtlHardcoded" />
+
+</LinearLayout>

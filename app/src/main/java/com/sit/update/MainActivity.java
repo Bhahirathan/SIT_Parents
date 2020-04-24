@@ -64,7 +64,7 @@ public class MainActivity extends AppCompatActivity
     private boolean isNConnected()
     {
         ConnectivityManager connectivityManager=(ConnectivityManager)getSystemService(Context.CONNECTIVITY_SERVICE);
-        return connectivityManager.getActiveNetworkInfo()!=null && connectivityManager.getActiveNetworkInfo().isConnected();
+        return Objects.requireNonNull(connectivityManager).getActiveNetworkInfo()!=null && Objects.requireNonNull(connectivityManager.getActiveNetworkInfo()).isConnected();
     }
     @SuppressLint("ResourceAsColor")
     @Override

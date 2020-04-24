@@ -9,4 +9,9 @@
     <string name="btn">play</string>
     <string name="menu_home">Home</string>
     <string name="menu_share">Share</string>
+    <string name="description">DESCRIPTION</string>
+    <string name="post_title">POST TITLE</string>
+    <string name="posted_at">Posted At:</string>
+    <string name="todo">TODO</string>
+    <string name="sit_parent_app">SIT Parent App</string>
 </resources>
