@@ -1,16 +1,12 @@
 package com.sit.update;
 
 import androidx.appcompat.app.AppCompatActivity;
-
-import android.annotation.SuppressLint;
 import android.content.Intent;
 import android.os.Bundle;
-import android.transition.Explode;
-import android.transition.Slide;
-import android.view.Gravity;
 import android.view.View;
-import android.view.Window;
-import android.view.animation.DecelerateInterpolator;
+import android.view.animation.Animation;
+import android.view.animation.AnimationUtils;
+import android.widget.RelativeLayout;
 
 import java.util.Objects;
 
@@ -22,10 +18,15 @@ public class intro extends AppCompatActivity {
         setContentView(R.layout.activity_intro);
         Objects.requireNonNull(getSupportActionBar()).hide();
         com.google.android.material.button.MaterialButton btn=findViewById(R.id.btn);
+        new AnimationUtils();
+        Animation animation= AnimationUtils.loadAnimation(intro.this,android.R.anim.fade_in);
+        animation.setDuration(2000);
+        RelativeLayout relativeLayout =findViewById(R.id.l);
+        relativeLayout.startAnimation(animation);
         btn.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                startActivity(new Intent(intro.this,MainActivity.class));
+                intro.this.startActivity(new Intent(intro.this,MainActivity.class));
             }
         });
     }

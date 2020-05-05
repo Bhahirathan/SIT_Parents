@@ -12,26 +12,38 @@
     tools:ignore="UseCompoundDrawables">
 
     <ImageView
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
+        android:id="@+id/im"
+        android:layout_width="170sp"
+        android:layout_height="170sp"
         android:src="@drawable/logo"
+        android:elevation="50sp"
         tools:ignore="ContentDescription" />
 
     <TextView
-        android:id="@+id/textView1"
-        android:layout_marginTop="15sp"
+        android:id="@+id/te"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:layout_marginLeft="8dp"
-        android:layout_marginRight="8dp"
-        android:text="@string/sit_parent_app"
         android:layout_gravity="center_horizontal"
-        android:textColor="@android:color/black"
-        android:fontFamily="sans-serif-thin"
-        android:textSize="40sp"
         android:textStyle="bold|italic"
-        tools:fontFamily="serif-monospace"
-        android:layout_marginStart="8dp"
-        android:layout_marginEnd="8dp" />
+        android:layout_marginTop="15sp"
+        android:layout_marginLeft="12sp"
+        android:layout_marginRight="12sp"
+        android:text="Sethu Institute of Technology"
+        android:textSize="24sp"
+        android:textAppearance="@style/Widget.MaterialComponents.TextView"
+        tools:ignore="HardcodedText,PrivateResource" />
+    <TextView
+        android:id="@+id/te1"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_gravity="center_horizontal"
+        android:textStyle="bold"
+        android:gravity="center"
+        android:layout_marginLeft="8sp"
+        android:layout_marginRight="8sp"
+        android:text="Aproved by All India Council for Technical Education, New Delhi\nPermanently Affliated to Anna University, Chennai.\nAn Autonomous Institution | Accredited with 'A' Grade by NAAC\nB.E MECH &amp; B.Tech IT Programmes Accredited by NBA, New Delhi, Under Washington Accord (Tier -1) PULLOOR - 626115, KARIAPATTI TALUK. VIRUDHUNAGR DISTRICT"
+        android:textSize="8sp"
+        android:textAppearance="@style/Widget.MaterialComponents.TextView"
+        tools:ignore="HardcodedText,PrivateResource,SmallSp" />
 
 </LinearLayout>

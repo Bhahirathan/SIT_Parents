@@ -2,8 +2,6 @@ package  com.sit.update;
 
 import android.annotation.SuppressLint;
 import android.app.DownloadManager;
-import android.app.NotificationChannel;
-import android.app.NotificationManager;
 import android.app.SearchManager;
 import android.content.BroadcastReceiver;
 import android.content.Context;
@@ -12,7 +10,6 @@ import android.content.Intent;
 import android.content.IntentFilter;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
-import android.graphics.Color;
 import android.net.ConnectivityManager;
 import android.net.Uri;
 import android.os.Bundle;
@@ -24,8 +21,6 @@ import android.view.ViewGroup;
 import android.widget.ImageView;
 import android.widget.RelativeLayout;
 import android.widget.TextView;
-import android.widget.Toast;
-
 import androidx.annotation.NonNull;
 import androidx.appcompat.app.ActionBarDrawerToggle;
 import androidx.appcompat.app.AlertDialog;
@@ -49,7 +44,6 @@ import com.google.firebase.messaging.FirebaseMessaging;
 
 import java.io.File;
 import java.text.DateFormat;
-import java.util.ArrayList;
 import java.util.Date;
 import java.util.Objects;
 
@@ -61,11 +55,6 @@ public class MainActivity extends AppCompatActivity
     private static FirebaseDatabase Database;
     private SwipeRefreshLayout swipeRefreshLayout;
 
-    private boolean isNConnected()
-    {
-        ConnectivityManager connectivityManager=(ConnectivityManager)getSystemService(Context.CONNECTIVITY_SERVICE);
-        return Objects.requireNonNull(connectivityManager).getActiveNetworkInfo()!=null && Objects.requireNonNull(connectivityManager.getActiveNetworkInfo()).isConnected();
-    }
     @SuppressLint("ResourceAsColor")
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -108,92 +97,74 @@ public class MainActivity extends AppCompatActivity
                     Database = FirebaseDatabase.getInstance();
                     Database.setPersistenceEnabled(true);
                 }
-/*
-        NotificationManager notificationManager =
-                (NotificationManager) getSystemService(Context.NOTIFICATION_SERVICE);
-
-        String channelId = "1";
-        String channel2 = "2";
-
-        if (android.os.Build.VERSION.SDK_INT >= android.os.Build.VERSION_CODES.O) {
-            NotificationChannel notificationChannel = new NotificationChannel(channelId,
-                    "Channel 1", NotificationManager.IMPORTANCE_HIGH);
-
-            notificationChannel.setDescription("This is BNT");
-            notificationChannel.setLightColor(Color.RED);
-            notificationChannel.enableVibration(true);
-            notificationChannel.setShowBadge(true);
-            notificationManager.createNotificationChannel(notificationChannel);
-
-            NotificationChannel notificationChannel2 = new NotificationChannel(channel2,
-                    "Channel 2", NotificationManager.IMPORTANCE_MIN);
-
-            notificationChannel.setDescription("This is bTV");
-            notificationChannel.setLightColor(Color.RED);
-            notificationChannel.enableVibration(true);
-            notificationChannel.setShowBadge(true);
-            notificationManager.createNotificationChannel(notificationChannel2);
-        }*/
-        // Get Firebase database reference
         FirebaseMessaging.getInstance().subscribeToTopic("notifications");
-        //FirebaseMessaging.getInstance().subscribeToTopic("pushNotifications");
-        //FirebaseMessaging.getInstance().subscribeToTopic("pushNotifications");
-        // Init user list
-                DatabaseReference mDatabase = Database.getReference().child("News");
-                mDatabase.keepSynced(true);
-                mPeopleRV = findViewById(R.id.myRecycleView);
-                final DatabaseReference personsRef = FirebaseDatabase.getInstance().getReference().child("News");
-                final Query personsQuery = personsRef.orderByKey();
-                mPeopleRV.hasFixedSize();
-                mLayoutManager = new LinearLayoutManager(MainActivity.this);
-                mLayoutManager.setReverseLayout(true);
-                mLayoutManager.setStackFromEnd(true);
-                mPeopleRV.setLayoutManager(mLayoutManager);
-
-
-                final FirebaseRecyclerOptions<News> personsOptions = new FirebaseRecyclerOptions.Builder<News>().setQuery(personsQuery, News.class).build();
-
-                mPeopleRVAdapter = new FirebaseRecyclerAdapter<News, MainActivity.NewsViewHolder>(personsOptions) {
-                    @Override
-                    protected void onBindViewHolder(@NonNull final MainActivity.NewsViewHolder holder, int position, @NonNull final News model) {
-
-                        holder.setTitle(model.getTitle());
-
-                        holder.setDesc(model.getDesc());
-
-                        if (model.getCreatedOn() != null) {
-
-                            holder.setTime(model.getCreatedOn());
-                        }
-                        final String n = getRef(position).getKey();
-                        if (model.getImage() != null)
-                            holder.setImage(model.getImage(), n);
-                        else
-                            holder.disable();
-                        holder.mView.setOnClickListener(new View.OnClickListener() {
-                            @Override
-                            public void onClick(View v) {
-                                Intent intent = new Intent(getApplicationContext(), NewsWebView.class);
-                                intent.putExtra("id", n);
-                                startActivity(intent);
-                            }
-                        });
-                    }
-
-                    @NonNull
-                    @Override
-                    public MainActivity.NewsViewHolder onCreateViewHolder(@NonNull ViewGroup parent, int viewType) {
-                        View view = LayoutInflater.from(parent.getContext())
-                                .inflate(R.layout.news_row, parent, false);
-                        return new MainActivity.NewsViewHolder(view);
-                    }
-                };
-                mPeopleRV.setAdapter(mPeopleRVAdapter);
+               refresh();
         }
+        private void refresh()
+        {
+            DatabaseReference mDatabase = Database.getReference().child("News");
+            mDatabase.keepSynced(true);
+            mPeopleRV = findViewById(R.id.myRecycleView);
+            final DatabaseReference personsRef = FirebaseDatabase.getInstance().getReference().child("News");
+            final Query personsQuery = personsRef.orderByKey();
+            mPeopleRV.hasFixedSize();
+            mLayoutManager = new LinearLayoutManager(MainActivity.this);
+            mLayoutManager.setReverseLayout(true);
+            mLayoutManager.setStackFromEnd(true);
+            mPeopleRV.setLayoutManager(mLayoutManager);
+            final FirebaseRecyclerOptions<News> personsOptions = new FirebaseRecyclerOptions.Builder<News>().setQuery(personsQuery, News.class).build();
+            mPeopleRVAdapter = new FirebaseRecyclerAdapter<News, MainActivity.NewsViewHolder>(personsOptions) {
+                @Override
+                protected void onBindViewHolder(@NonNull final MainActivity.NewsViewHolder holder, int position, @NonNull final News model) {
 
+                    holder.setTitle(model.getTitle());
+
+                    holder.setDesc(model.getDesc());
+
+                    if (model.getCreatedOn() != null) {
+
+                        holder.setTime(model.getCreatedOn());
+                    }
+                    final String n = getRef(position).getKey();
+                    if (model.getImage() != null)
+                        holder.setImage(model.getImage(), n);
+                    else
+                        holder.disable();
+                    holder.mView.setOnClickListener(new View.OnClickListener() {
+                        @Override
+                        public void onClick(View v) {
+                            Intent intent = new Intent(getApplicationContext(), NewsWebView.class);
+                            intent.putExtra("id", n);
+                            startActivity(intent);
+                        }
+                    });
+                }
+
+                @NonNull
+                @Override
+                public MainActivity.NewsViewHolder onCreateViewHolder(@NonNull ViewGroup parent, int viewType) {
+                    View view = LayoutInflater.from(parent.getContext())
+                            .inflate(R.layout.news_row, parent, false);
+                    return new MainActivity.NewsViewHolder(view);
+                }
+            };
+            mPeopleRV.setAdapter(mPeopleRVAdapter);
+        }
+        @Override
+        protected void onResume()
+        {
+            super.onResume();
+        }
+        protected void onPause()
+        {
+            super.onPause();
+        }
+    private boolean isNConnected()
+    {
+        ConnectivityManager connectivityManager=(ConnectivityManager)getSystemService(Context.CONNECTIVITY_SERVICE);
+        return Objects.requireNonNull(connectivityManager).getActiveNetworkInfo()!=null && Objects.requireNonNull(connectivityManager.getActiveNetworkInfo()).isConnected();
+    }
     private void fireSearch(String searchText) {
-
-        //convert string entered in SearchView to lowercase
 
         final DatabaseReference personsRe = FirebaseDatabase.getInstance().getReference().child("News");
         final Query personsQuer;
@@ -203,7 +174,6 @@ public class MainActivity extends AppCompatActivity
             personsQuer = personsRe.orderByChild("Title").startAt(searchText)
                     .endAt(searchText + "\uf8ff");
         }
-
         mPeopleRV.hasFixedSize();
         mLayoutManager = new LinearLayoutManager(MainActivity.this);
         mLayoutManager.setReverseLayout(true);
@@ -211,7 +181,6 @@ public class MainActivity extends AppCompatActivity
         mPeopleRV.setLayoutManager(mLayoutManager);
 
         final FirebaseRecyclerOptions<News> personsOption = new FirebaseRecyclerOptions.Builder<News>().setQuery(personsQuer, News.class).build();
-
         mPeopleRVAdapter = new FirebaseRecyclerAdapter<News, MainActivity.NewsViewHolder>(personsOption) {
             @Override
             protected void onBindViewHolder(@NonNull final MainActivity.NewsViewHolder holder, final int position, @NonNull final News model) {
@@ -237,7 +206,6 @@ public class MainActivity extends AppCompatActivity
                     }
                 });
             }
-
             @NonNull
             @Override
             public MainActivity.NewsViewHolder onCreateViewHolder(@NonNull ViewGroup parent, int viewType) {
@@ -264,7 +232,6 @@ public class MainActivity extends AppCompatActivity
         if (manager != null) {
             search.setSearchableInfo(manager.getSearchableInfo(getComponentName()));
         }
-
         search.setOnQueryTextListener(new SearchView.OnQueryTextListener() {
 
             @Override
@@ -303,7 +270,6 @@ public class MainActivity extends AppCompatActivity
 
     @Override
     public boolean onOptionsItemSelected(@NonNull MenuItem item) {
-        //int id = item.getItemId();
         return super.onOptionsItemSelected(item);
     }
     @Override
@@ -332,7 +298,6 @@ public class MainActivity extends AppCompatActivity
     @Override
     public void onStop() {
         super.onStop();
-        mPeopleRVAdapter.stopListening();
     }
 
     public class NewsViewHolder extends RecyclerView.ViewHolder {

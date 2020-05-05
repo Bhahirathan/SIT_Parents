@@ -6,8 +6,9 @@
     android:layout_height="match_parent"
     app:layout_behavior="@string/appbar_scrolling_view_behavior"
     tools:context=".MainActivity"
-    android:background="#fbf6ff"
     tools:showIn="@layout/app_bar_main">
+   <!-- android:background="#fbf6ff"-->
+
 
     <LinearLayout
         android:layout_width="match_parent"
