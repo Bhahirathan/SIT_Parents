@@ -1,13 +1,18 @@
 package com.sit.update;
 
+import androidx.appcompat.app.AlertDialog;
 import androidx.appcompat.app.AppCompatActivity;
+import androidx.core.view.GravityCompat;
+import androidx.drawerlayout.widget.DrawerLayout;
+
+import android.content.DialogInterface;
 import android.content.Intent;
+import android.graphics.drawable.Drawable;
 import android.os.Bundle;
 import android.view.View;
 import android.view.animation.Animation;
 import android.view.animation.AnimationUtils;
 import android.widget.RelativeLayout;
-
 import java.util.Objects;
 
 public class intro extends AppCompatActivity {
@@ -18,23 +23,22 @@ public class intro extends AppCompatActivity {
         setContentView(R.layout.activity_intro);
         Objects.requireNonNull(getSupportActionBar()).hide();
         com.google.android.material.button.MaterialButton btn=findViewById(R.id.btn);
-        new AnimationUtils();
-        Animation animation= AnimationUtils.loadAnimation(intro.this,android.R.anim.fade_in);
+        final Animation animation= AnimationUtils.loadAnimation(intro.this,android.R.anim.fade_in);
         animation.setDuration(2000);
-        RelativeLayout relativeLayout =findViewById(R.id.l);
+        final RelativeLayout relativeLayout =findViewById(R.id.l);
         relativeLayout.startAnimation(animation);
         btn.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                intro.this.startActivity(new Intent(intro.this,MainActivity.class));
+                startActivity(new Intent(intro.this,MainActivity.class));
+                finish();
             }
         });
-    }
-    public void onBackPressed()
-    {
-        Intent a = new Intent(Intent.ACTION_MAIN);
-        a.addCategory(Intent.CATEGORY_HOME);
-        a.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
-        startActivity(a);
+        if(getIntent().getExtras()!=null && getIntent().getExtras().get("back").equals("true"))
+        {
+            btn.setText("BACK  ");
+            Drawable drawable=btn.getContext().getResources().getDrawable(android.R.drawable.ic_media_previous);
+            btn.setCompoundDrawablesWithIntrinsicBounds(drawable,null,null,null);
+        }
     }
 }

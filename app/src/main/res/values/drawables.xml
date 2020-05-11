@@ -1,4 +1,3 @@
 <resources >
-    <item name="ic_menu_slideshow" type="drawable">@drawable/slideshow</item>
-    <item name="ic_menu_share" type="drawable">@drawable/share</item>
+    <item name="ic_menu_share" type="drawable">@drawable/ic_menu_share</item>
 </resources>

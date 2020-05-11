@@ -16,11 +16,13 @@ import android.os.Build;
 import android.os.Bundle;
 import android.text.SpannableString;
 import android.text.method.ScrollingMovementMethod;
+import android.util.Base64;
 import android.view.MenuItem;
 import android.view.MotionEvent;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.ImageView;
+import android.widget.ProgressBar;
 import android.widget.TextView;
 import android.widget.Toast;
 
@@ -39,9 +41,19 @@ import com.google.firebase.database.DatabaseReference;
 import com.google.firebase.database.FirebaseDatabase;
 import com.google.firebase.database.ValueEventListener;
 import java.io.File;
+import java.nio.charset.StandardCharsets;
+import java.security.InvalidKeyException;
+import java.security.Key;
+import java.security.NoSuchAlgorithmException;
 import java.text.DateFormat;
 import java.util.Date;
 import java.util.Objects;
+
+import javax.crypto.BadPaddingException;
+import javax.crypto.Cipher;
+import javax.crypto.IllegalBlockSizeException;
+import javax.crypto.NoSuchPaddingException;
+import javax.crypto.spec.SecretKeySpec;
 
 public class NewsWebView extends AppCompatActivity implements ValueEventListener , View.OnClickListener, View.OnTouchListener, MediaPlayer.OnCompletionListener, MediaPlayer.OnBufferingUpdateListener {
 
@@ -49,7 +61,7 @@ public class NewsWebView extends AppCompatActivity implements ValueEventListener
     private DatabaseReference mDesc;
     private DatabaseReference mImg;
     private DatabaseReference mUrl;
-    private DatabaseReference mcOn;
+    private DatabaseReference mcOn,mref;
     TextView txt;
     TextView txtdesc,txtdes;
     Toolbar toolbar;
@@ -61,6 +73,7 @@ public class NewsWebView extends AppCompatActivity implements ValueEventListener
     private String id;
     private MediaPlayer mediaPlayer;
     private CardView cardView;
+    ProgressBar p;
     @RequiresApi(api = Build.VERSION_CODES.M)
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -70,8 +83,9 @@ public class NewsWebView extends AppCompatActivity implements ValueEventListener
         final AlertDialog.Builder mBuilder = new AlertDialog.Builder(NewsWebView.this);
         @SuppressLint("InflateParams") View mView = getLayoutInflater().inflate(R.layout.dialog_custom_layout, null);
         mBuilder.setView(mView);
+        p=findViewById(R.id.pbar);
         photoView = mView.findViewById(R.id.imageView);
-        cardView=mView.findViewById(R.id.cd);
+        cardView = mView.findViewById(R.id.cd);
         final AlertDialog mDialog = mBuilder.create();
         mIcon.setOnClickListener(new View.OnClickListener() {
             @Override
@@ -85,24 +99,43 @@ public class NewsWebView extends AppCompatActivity implements ValueEventListener
         getWindow().setStatusBarColor(getResources().getColor(R.color.colorPrimaryDark));
         setSupportActionBar(toolbar);
         Objects.requireNonNull(this.getSupportActionBar()).setDisplayHomeAsUpEnabled(true);
+        String ur = null;
+        try {
+            ur = getIntent().getData().toString().toLowerCase();
+        } catch (Exception e) {
+
+        }
         Bundle b = getIntent().getExtras();
-        if (b != null) {
+        if (ur != null) {
+            if (ur.contains("sitparents.com")) {
+                id = ur.substring(ur.lastIndexOf("/"));
+                id = id.substring(1);
+
+            }
+        } else if (b != null) {
             id = b.getString("id");
         }
+
+        if (id != null && id.equals("")) {
+            startActivity(new Intent(NewsWebView.this, MainActivity.class));
+        }
         FirebaseDatabase mDatabase = FirebaseDatabase.getInstance();
-        DatabaseReference mref = mDatabase.getReference().child("News").child(id);
-        mTitle = mref.child("Title");
-        mDesc = mref.child("desc");
-        mImg = mref.child("image");
-        mUrl = mref.child("url");
-        mcOn = mref.child("createdOn");
+        try {
+            mref = mDatabase.getReference().child("News").child(id);
+            mTitle = mref.child("Title");
+            mDesc = mref.child("desc");
+            mImg = mref.child("image");
+            mUrl = mref.child("url");
+            mcOn = mref.child("createdOn");
+        } catch (Exception e) {
+            startActivity(new Intent(NewsWebView.this, MainActivity.class));
+            finish();
+        }
         txt = findViewById(R.id.textView2);
         txtdesc = findViewById(R.id.textView3);
         txtdes = findViewById(R.id.textVie);
-        txtdesc.setMovementMethod(new ScrollingMovementMethod());
+        //txtdesc.setMovementMethod(new ScrollingMovementMethod());
         initView();
-
-
     }
 
 
@@ -111,8 +144,6 @@ public class NewsWebView extends AppCompatActivity implements ValueEventListener
         buttonPlayPause = findViewById(R.id.play);
         buttonPlayPause.setForegroundGravity(GravityCompat.END);
         buttonPlayPause.setOnClickListener(this);
-
-
         mediaPlayer = new MediaPlayer();
         mediaPlayer.setOnBufferingUpdateListener(this);
         mediaPlayer.setOnCompletionListener(this);
@@ -199,7 +230,7 @@ public class NewsWebView extends AppCompatActivity implements ValueEventListener
             if(dataSnapshot.getValue(Long.class)!=null) {
                  s = DateFormat.getDateTimeInstance().format(new Date(time));
             }
-                txtdes.setText("Posted At: " + s);
+                txtdes.setText(s);
 
         }
         switch (dataSnapshot.getKey()) {
@@ -211,14 +242,14 @@ public class NewsWebView extends AppCompatActivity implements ValueEventListener
                 if (value != null) {
                     String path = Objects.requireNonNull(getApplicationContext().getExternalCacheDir()).toString();
                     path = path.replace("cache", "");
-                    final File f = new File(path + "/Parent/", id + ".jpeg");
+                    final File f = new File(path + "/files/", id + ".jpeg");
                     if (!f.exists()) {
-                        Toast.makeText(getApplicationContext(), f.getAbsolutePath(), Toast.LENGTH_SHORT).show();
                         DownloadManager dm = (DownloadManager) getSystemService(DOWNLOAD_SERVICE);
                         Uri ur = Uri.parse(value);
                         DownloadManager.Request request = new DownloadManager.Request(ur);
                         request.setAllowedNetworkTypes(DownloadManager.Request.NETWORK_WIFI | DownloadManager.Request.NETWORK_MOBILE)
-                                .setDestinationInExternalPublicDir("/Parent/", id + ".jpeg")
+                                .setDestinationInExternalFilesDir(getApplicationContext(),"/",id+".jpeg")
+                                //.setDestinationInExternalPublicDir("/Parent/", id + ".jpeg")
                                 .setNotificationVisibility(DownloadManager.Request.VISIBILITY_HIDDEN)
                         ;
                         bitmap = BitmapFactory.decodeFile(f.getAbsolutePath());
@@ -249,16 +280,23 @@ public class NewsWebView extends AppCompatActivity implements ValueEventListener
                 //new DownLoadImageTask(mIcon).execute(value);
                 break;
             case "desc":
-                txtdesc.setText(value);
-                txtdesc.setText(new SpannableString(txtdesc.getText()));
-                TextJustification.justify(txtdesc);
-                break;
+                try {
+                    txtdesc.setText(new SpannableString(value));
+                    TextJustification.justify(txtdesc);
+                    break;
+                } catch (Exception e) {
+                    Toast.makeText(getApplicationContext(),"Page not Found",Toast.LENGTH_SHORT).show();
+                    startActivity(new Intent(NewsWebView.this,MainActivity.class));
+                }
+
+
             case "url":
                 if (value == null || value.equals("")) {
                     buttonPlayPause.setVisibility(View.GONE);
                 } else {
                     AudioURL = value;
                 }
+                p.setVisibility(View.GONE);
                 break;
         }
     }
@@ -285,6 +323,7 @@ public class NewsWebView extends AppCompatActivity implements ValueEventListener
         mDesc.addValueEventListener(this);
         mUrl.addValueEventListener(this);
         mcOn.addValueEventListener(this);
+
     }
 }
 

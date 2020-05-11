@@ -40,8 +40,7 @@ public class SplashActivity extends AppCompatActivity {
                 }
             }
             else {
-                startActivity(new Intent(SplashActivity.this,intro.class));
-                finish();
+                Toast.makeText(getApplicationContext(), "File Access Granted, Please wait...", Toast.LENGTH_SHORT).show();
             }
         }
     }
@@ -49,7 +48,6 @@ public class SplashActivity extends AppCompatActivity {
         if (Build.VERSION.SDK_INT >= 23) {
             if (!(checkSelfPermission(android.Manifest.permission.WRITE_EXTERNAL_STORAGE)
                     == PackageManager.PERMISSION_GRANTED)) {
-
                 ActivityCompat.requestPermissions(this, new String[]{Manifest.permission.WRITE_EXTERNAL_STORAGE}, 1);
             }
         }
@@ -63,15 +61,6 @@ public class SplashActivity extends AppCompatActivity {
         Objects.requireNonNull(getSupportActionBar()).hide();
         isStoragePermissionGranted();
         try {
-            ImageView i=findViewById(R.id.im);
-            TextView t=findViewById(R.id.te);
-            TextView t1=findViewById(R.id.te1);
-            new AnimationUtils();
-            Animation animation= AnimationUtils.loadAnimation(SplashActivity.this,android.R.anim.slide_in_left);
-            animation.setDuration(2000);
-            t.startAnimation(animation);
-            t1.startAnimation(animation);
-            i.startAnimation(animation);
             new Handler().postDelayed(new Runnable() {
                 @Override
                 public void run() {
@@ -83,7 +72,6 @@ public class SplashActivity extends AppCompatActivity {
                             Toast.makeText(SplashActivity.this,"not working",Toast.LENGTH_LONG);
                             startActivity(mainIntent);
                             finish();
-                            overridePendingTransition(android.R.anim.fade_in,android.R.anim.fade_out);
                         }
                     }
                 }

@@ -1,5 +1,6 @@
 package  com.sit.update;
 
+import android.Manifest;
 import android.annotation.SuppressLint;
 import android.app.DownloadManager;
 import android.app.SearchManager;
@@ -8,19 +9,34 @@ import android.content.Context;
 import android.content.DialogInterface;
 import android.content.Intent;
 import android.content.IntentFilter;
+import android.content.pm.PackageManager;
+import android.content.res.Resources;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
+import android.graphics.drawable.BitmapDrawable;
+import android.graphics.drawable.Drawable;
 import android.net.ConnectivityManager;
 import android.net.Uri;
+import android.os.Build;
 import android.os.Bundle;
+import android.os.Environment;
+import android.os.Handler;
+import android.util.Base64;
+import android.util.TypedValue;
+import android.view.Gravity;
 import android.view.LayoutInflater;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
 import android.view.ViewGroup;
+import android.view.Window;
 import android.widget.ImageView;
+import android.widget.LinearLayout;
+import android.widget.ProgressBar;
 import android.widget.RelativeLayout;
 import android.widget.TextView;
+import android.widget.Toast;
+
 import androidx.annotation.NonNull;
 import androidx.appcompat.app.ActionBarDrawerToggle;
 import androidx.appcompat.app.AlertDialog;
@@ -29,6 +45,7 @@ import androidx.appcompat.widget.SearchView;
 import androidx.appcompat.widget.Toolbar;
 import androidx.cardview.widget.CardView;
 import androidx.core.view.GravityCompat;
+import androidx.core.widget.ContentLoadingProgressBar;
 import androidx.drawerlayout.widget.DrawerLayout;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
@@ -43,26 +60,37 @@ import com.google.firebase.database.Query;
 import com.google.firebase.messaging.FirebaseMessaging;
 
 import java.io.File;
+import java.io.UnsupportedEncodingException;
+import java.nio.charset.StandardCharsets;
+import java.security.InvalidKeyException;
+import java.security.Key;
+import java.security.NoSuchAlgorithmException;
 import java.text.DateFormat;
 import java.util.Date;
 import java.util.Objects;
+import java.util.concurrent.TimeUnit;
 
 public class MainActivity extends AppCompatActivity
         implements NavigationView.OnNavigationItemSelectedListener {
     private RecyclerView mPeopleRV;
     private FirebaseRecyclerAdapter<News, MainActivity.NewsViewHolder> mPeopleRVAdapter;
     private LinearLayoutManager mLayoutManager;
-    private static FirebaseDatabase Database;
+    private DatabaseReference mDatabase;
+    private Context mcontext;
     private SwipeRefreshLayout swipeRefreshLayout;
-
+    ProgressBar p;
     @SuppressLint("ResourceAsColor")
-    @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
+        requestWindowFeature(Window.FEATURE_INDETERMINATE_PROGRESS);
         setContentView(R.layout.activity_main);
                 Toolbar toolbar = findViewById(R.id.toolbar);
-                toolbar.setBackground(getResources().getDrawable((R.drawable.gradient)));
+                toolbar.setBackground(getResources().getDrawable(R.color.tool));
                 setSupportActionBar(toolbar);
+                setProgressBarIndeterminateVisibility(true);
+        p=findViewById(R.id.pbar);
+                Toast toast=Toast.makeText(getApplicationContext(),"Loading, Please wait...",Toast.LENGTH_LONG);
+                toast.show();
         AlertDialog.Builder alert=new AlertDialog.Builder(MainActivity.this);
         alert.setTitle("No Internet Connection !!!");
         alert.setMessage("Please Connect to the Internet!!!");
@@ -75,6 +103,7 @@ public class MainActivity extends AppCompatActivity
         AlertDialog alertDialog=alert.create();
         if(!isNConnected())
         alertDialog.show();
+        mcontext=getApplicationContext();
         swipeRefreshLayout=findViewById(R.id.swipe);
         swipeRefreshLayout.setColorSchemeColors(R.color.colorAccent);
         swipeRefreshLayout.setOnRefreshListener(new SwipeRefreshLayout.OnRefreshListener() {
@@ -93,17 +122,24 @@ public class MainActivity extends AppCompatActivity
                 NavigationView navigationView = findViewById(R.id.nav_view);
                 navigationView.setNavigationItemSelectedListener(this);
 
-                if (Database == null) {
-                    Database = FirebaseDatabase.getInstance();
-                    Database.setPersistenceEnabled(true);
+                if (mDatabase == null ) {
+                    try {
+                        FirebaseDatabase database = FirebaseDatabase.getInstance();
+                        database.setPersistenceEnabled(true);
+                        mDatabase = database.getReference();
+                    } catch (Exception e) {
+                        FirebaseDatabase database = FirebaseDatabase.getInstance();
+                        mDatabase = database.getReference();
+                    }
                 }
         FirebaseMessaging.getInstance().subscribeToTopic("notifications");
                refresh();
+          //     p.setVisibility(View.GONE);
         }
         private void refresh()
         {
-            DatabaseReference mDatabase = Database.getReference().child("News");
             mDatabase.keepSynced(true);
+            mDatabase =mDatabase.child("News");
             mPeopleRV = findViewById(R.id.myRecycleView);
             final DatabaseReference personsRef = FirebaseDatabase.getInstance().getReference().child("News");
             final Query personsQuery = personsRef.orderByKey();
@@ -113,7 +149,13 @@ public class MainActivity extends AppCompatActivity
             mLayoutManager.setStackFromEnd(true);
             mPeopleRV.setLayoutManager(mLayoutManager);
             final FirebaseRecyclerOptions<News> personsOptions = new FirebaseRecyclerOptions.Builder<News>().setQuery(personsQuery, News.class).build();
-            mPeopleRVAdapter = new FirebaseRecyclerAdapter<News, MainActivity.NewsViewHolder>(personsOptions) {
+            mPeopleRVAdapter = new FirebaseRecyclerAdapter< News, MainActivity.NewsViewHolder>(personsOptions) {
+                @SuppressLint("GetInstance")
+                @Override
+                public void onDataChanged()
+                {
+                    p.setVisibility(View.GONE);
+                }
                 @Override
                 protected void onBindViewHolder(@NonNull final MainActivity.NewsViewHolder holder, int position, @NonNull final News model) {
 
@@ -126,10 +168,23 @@ public class MainActivity extends AppCompatActivity
                         holder.setTime(model.getCreatedOn());
                     }
                     final String n = getRef(position).getKey();
+                    holder.mView.findViewById(R.id.share).setOnClickListener(new View.OnClickListener() {
+                        @Override
+                        public void onClick(View v) {
+                            Intent sharingIntent = new Intent(android.content.Intent.ACTION_SEND);
+                            sharingIntent.setType("text/plain");
+                            String shareBody = "http://sitparents.com/"+n;
+                            sharingIntent.putExtra(android.content.Intent.EXTRA_TEXT, shareBody);
+                            startActivity(Intent.createChooser(sharingIntent, "Share using"));
+                        }
+                    });
                     if (model.getImage() != null)
-                        holder.setImage(model.getImage(), n);
+                        holder.setImage(mcontext,model.getImage(), n);
                     else
+                    {
                         holder.disable();
+                    holder.mView.findViewById(R.id.cr).setVisibility(View.GONE);
+                }
                     holder.mView.setOnClickListener(new View.OnClickListener() {
                         @Override
                         public void onClick(View v) {
@@ -192,11 +247,22 @@ public class MainActivity extends AppCompatActivity
                     holder.setTime(model.getCreatedOn());
                 }
                 final String n = getRef(position).getKey();
+                holder.mView.findViewById(R.id.share).setOnClickListener(new View.OnClickListener() {
+                    @Override
+                    public void onClick(View v) {
+                        Intent sharingIntent = new Intent(android.content.Intent.ACTION_SEND);
+                        sharingIntent.setType("text/plain");
+                        String shareBody = "http://sitparents.com/"+n;
+                        sharingIntent.putExtra(android.content.Intent.EXTRA_TEXT, shareBody);
+                        startActivity(Intent.createChooser(sharingIntent, "Share using"));
+                    }
+                });
                 if(model.getImage()!=null)
-                holder.setImage( model.getImage(), n);
-                else
+                holder.setImage(mcontext, model.getImage(), n);
+                else {
                     holder.disable();
-
+                    holder.mView.findViewById(R.id.cr).setVisibility(View.GONE);
+                }
                 holder.mView.setOnClickListener(new View.OnClickListener() {
                     @Override
                     public void onClick(View v) {
@@ -252,18 +318,21 @@ public class MainActivity extends AppCompatActivity
     }
 
     // History
-
-
     @Override
     public void onBackPressed() {
         DrawerLayout drawer = findViewById(R.id.drawer_layout);
         if (drawer.isDrawerOpen(GravityCompat.START)) {
             drawer.closeDrawer(GravityCompat.START);
         } else {
-            Intent a = new Intent(Intent.ACTION_MAIN);
-            a.addCategory(Intent.CATEGORY_HOME);
-            a.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
-            startActivity(a);
+            new AlertDialog.Builder(this).setTitle("Exit")
+                    .setMessage("Are you sure you want to exit?")
+                    .setNegativeButton("No",null)
+                    .setPositiveButton("Yes", new DialogInterface.OnClickListener() {
+                        @Override
+                        public void onClick(DialogInterface dialog, int which) {
+                            finishAffinity();
+                        }
+                    }).create().show();
         }
     }
 
@@ -275,7 +344,13 @@ public class MainActivity extends AppCompatActivity
     @Override
     public boolean onNavigationItemSelected(MenuItem item) {
         int id = item.getItemId();
-        if (id == R.id.nav_share) {
+        if(id==R.id.nav_courses)
+        {
+            Intent intent=new Intent(MainActivity.this,intro.class);
+            intent.putExtra("back","true");
+            startActivity(intent);
+        }
+     /*   else if (id == R.id.nav_share) {
             Intent sharingIntent = new Intent(android.content.Intent.ACTION_SEND);
             sharingIntent.setType("text/plain");
             String shareBody = "Link will be Updated Soon";
@@ -283,7 +358,20 @@ public class MainActivity extends AppCompatActivity
             sharingIntent.putExtra(android.content.Intent.EXTRA_SUBJECT, shareSub);
             sharingIntent.putExtra(android.content.Intent.EXTRA_TEXT, shareBody);
             startActivity(Intent.createChooser(sharingIntent, "Share using"));
+        }*/
+        else if(id==R.id.about)
+        {
+            startActivity(new Intent(MainActivity.this,about_us.class));
         }
+        else if(id==R.id.abo)
+        {
+            startActivity(new Intent(MainActivity.this,About.class));
+        }
+        else
+        {
+            startActivity(new Intent(MainActivity.this,MainActivity.class));
+        }
+
         DrawerLayout drawer = findViewById(R.id.drawer_layout);
         drawer.closeDrawer(GravityCompat.START);
         return true;
@@ -303,26 +391,46 @@ public class MainActivity extends AppCompatActivity
     public class NewsViewHolder extends RecyclerView.ViewHolder {
         View mView;
         Bitmap bitmap ;
+        ImageView p,r,sh;
+        TextView post_time,post_title,post_desc;
         NewsViewHolder(View itemView) {
             super(itemView);
             mView = itemView;
+            r=mView.findViewById(R.id.RI);
+            sh=mView.findViewById(R.id.share);
         }
 
         void setTitle(String title) {
-            TextView post_title = mView.findViewById(R.id.post_title);
+            post_title = mView.findViewById(R.id.post_title);
             post_title.setText(title);
         }
 
         @SuppressLint("SetTextI18n")
         void setTime(Long time) {
-            TextView post_time = mView.findViewById(R.id.post_time);
-
-            String s = DateFormat.getDateTimeInstance().format(new Date(time));
-            post_time.setText("Posted At: " + s);
+             post_time = mView.findViewById(R.id.post_time);
+             Date d=new Date(time);
+             Date now =new Date();
+             long sec= TimeUnit.MILLISECONDS.toSeconds(now.getTime()-d.getTime());
+            long mins= TimeUnit.MILLISECONDS.toMinutes(now.getTime()-d.getTime());
+            long hrs= TimeUnit.MILLISECONDS.toHours(now.getTime()-d.getTime());
+            long days= TimeUnit.MILLISECONDS.toDays(now.getTime()-d.getTime());
+            //String s = DateFormat.getDateTimeInstance().format(new Date(time));
+            String s="\u2022 ";
+            if(sec<60)
+                s+= sec +" seconds ago";
+            else if(mins<60)
+                s+= mins +" minutes ago";
+            else if(hrs<24)
+                s+= hrs +" hours ago";
+            else if(days==1)
+                s+=days+ " day ago";
+            else
+                s+= days +" days ago";
+            post_time.setText(s);
         }
 
         void setDesc(String desc) {
-            TextView post_desc = mView.findViewById(R.id.post_desc);
+            post_desc = mView.findViewById(R.id.post_desc);
             post_desc.setText(desc);
         }
         void disable()
@@ -331,44 +439,118 @@ public class MainActivity extends AppCompatActivity
             CardView cardView =mView.findViewById(R.id.rl);
             RelativeLayout relativeLayout=mView.findViewById(R.id.rl1);
             ViewGroup.LayoutParams layoutParams=cardView.getLayoutParams();
+            cardView.setPadding(cardView.getPaddingLeft(),cardView.getPaddingTop(),cardView.getPaddingRight(),20);
             layoutParams.height= ViewGroup.LayoutParams.WRAP_CONTENT;
             ViewGroup.LayoutParams layoutParam=relativeLayout.getLayoutParams();
             layoutParam.height= ViewGroup.LayoutParams.WRAP_CONTENT;
-         imageView.setVisibility(View.GONE);
+            imageView.setVisibility(View.GONE);
+            RelativeLayout rl=mView.findViewById(R.id.rela);
+            Resources r=getApplicationContext().getResources();
+            RelativeLayout.LayoutParams relaL=(RelativeLayout.LayoutParams)rl.getLayoutParams();
+            relaL.addRule(RelativeLayout.BELOW,R.id.post_desc);
+            rl.setPadding(rl.getPaddingLeft(),rl.getPaddingTop(),rl.getPaddingRight(),(int) TypedValue.applyDimension(TypedValue.COMPLEX_UNIT_DIP,10,r.getDisplayMetrics()));
+            //relaL.setMargins(relaL.leftMargin,(int) TypedValue.applyDimension(TypedValue.COMPLEX_UNIT_DIP,5,r.getDisplayMetrics()),relaL.rightMargin,(int) TypedValue.applyDimension(TypedValue.COMPLEX_UNIT_DIP,15,r.getDisplayMetrics()));
+            rl.setLayoutParams(relaL);
+         mView.findViewById(R.id.image).setVisibility(View.GONE);
         }
-        void setImage(String image, String id) {
+        @SuppressLint("ResourceAsColor")
+        void setImage(Context context,String image, String id) {
             final ImageView post_image = mView.findViewById(R.id.post_image);
             String path= Objects.requireNonNull(getApplicationContext().getExternalCacheDir()).toString();
             path=path.replace("cache","");
-            final File f=new File(path+"/Parent/",id+".jpeg");
+            final File f=new File(path+"/files/",id+".jpeg");
             if(!f.exists()) {
                 DownloadManager dm=(DownloadManager)getSystemService(DOWNLOAD_SERVICE);
                 Uri ur = Uri.parse(image);
                 DownloadManager.Request request=new DownloadManager.Request(ur);
                 request.setAllowedNetworkTypes(DownloadManager.Request.NETWORK_WIFI|DownloadManager.Request.NETWORK_MOBILE)
-                        .setDestinationInExternalPublicDir("Android/data/com.sit.update/Parent/",id+".jpeg")
+                        .setDestinationInExternalFilesDir(mcontext,"/",id+".jpeg")
+                        //.setDestinationInExternalPublicDir("Android/data/com.sit.update/Parent/",id+".jpeg")
                         .setNotificationVisibility(DownloadManager.Request.VISIBILITY_HIDDEN)
                 ;
-                bitmap = BitmapFactory.decodeFile(f.getAbsolutePath());
+                //bitmap = BitmapFactory.decodeFile(f.getAbsolutePath());
                 BroadcastReceiver broadcastReceiver=new BroadcastReceiver() {
                     @Override
                     public void onReceive(Context context, Intent intent) {
                         String action=intent.getAction();
-                        if(DownloadManager.ACTION_DOWNLOAD_COMPLETE.equals(action)){
+                        if(DownloadManager.ACTION_DOWNLOAD_COMPLETE.equals(action)&&f.exists()){
                             bitmap = BitmapFactory.decodeFile(f.getAbsolutePath());
                             post_image.setImageBitmap(bitmap);
-                        }
+                            p=mView.findViewById(R.id.image);
+                            if(bitmap!=null)
+                            if(bitmap.getHeight()<bitmap.getWidth())
+                            {
+                                post_image.setImageBitmap(bitmap);
+                                p.setImageBitmap(bitmap);
+                                mView.findViewById(R.id.cr).setVisibility(View.GONE);
+                            }
+                            else {
+                                disable();
+                                r.setImageBitmap(bitmap);
+                                Resources r = getApplicationContext().getResources();
+                                CardView cardView = mView.findViewById(R.id.rl);
+                                ViewGroup.LayoutParams layoutPara = cardView.getLayoutParams();
+                                layoutPara.height = (int) TypedValue.applyDimension(TypedValue.COMPLEX_UNIT_DIP, 160, r.getDisplayMetrics());
+                                RelativeLayout.LayoutParams layoutParams = new RelativeLayout.LayoutParams(RelativeLayout.LayoutParams.WRAP_CONTENT, RelativeLayout.LayoutParams.WRAP_CONTENT);
+                                layoutParams.addRule(RelativeLayout.BELOW, R.id.post_title);
+                                layoutParams.setMargins((int) TypedValue.applyDimension(TypedValue.COMPLEX_UNIT_DIP, 15, r.getDisplayMetrics()), (int) TypedValue.applyDimension(TypedValue.COMPLEX_UNIT_DIP, 5, r.getDisplayMetrics()), (int) TypedValue.applyDimension(TypedValue.COMPLEX_UNIT_DIP, 120, r.getDisplayMetrics()), 0);
+                                post_desc.setLayoutParams(layoutParams);
+                                post_desc.setMaxLines(2);
+                                RelativeLayout.LayoutParams layoutParam = new RelativeLayout.LayoutParams(RelativeLayout.LayoutParams.WRAP_CONTENT, RelativeLayout.LayoutParams.WRAP_CONTENT);
+                                layoutParam.setMargins((int) TypedValue.applyDimension(TypedValue.COMPLEX_UNIT_DIP, 15, r.getDisplayMetrics()), (int) TypedValue.applyDimension(TypedValue.COMPLEX_UNIT_DIP, 15, r.getDisplayMetrics()), (int) TypedValue.applyDimension(TypedValue.COMPLEX_UNIT_DIP, 15, r.getDisplayMetrics()), 0);
+                                post_title.setMaxLines(2);
+                                post_title.setLayoutParams(layoutParam);
+                                RelativeLayout Rlayout = mView.findViewById(R.id.rela);
+                                Rlayout.setGravity(Gravity.BOTTOM);
+                                Rlayout.setPadding(Rlayout.getPaddingLeft(), Rlayout.getPaddingTop(), Rlayout.getPaddingRight(), (int) TypedValue.applyDimension(TypedValue.COMPLEX_UNIT_DIP, 10, r.getDisplayMetrics()));
+                                RelativeLayout.LayoutParams layout = (RelativeLayout.LayoutParams) Rlayout.getLayoutParams();
+                                //layout.addRule(RelativeLayout.BELOW,R.id.RI);
+                                layout.addRule(RelativeLayout.ALIGN_PARENT_BOTTOM);
+                                //layout.setMargins(layout.leftMargin,layout.topMargin,layout.rightMargin,(int) TypedValue.applyDimension(TypedValue.COMPLEX_UNIT_DIP,15,r.getDisplayMetrics()));
+                                Rlayout.setLayoutParams(layout);
+                            }
+                            }
                     }
                 };
+
                 if (dm != null) {
                     dm.enqueue(request);
                 }
                 registerReceiver(broadcastReceiver,new IntentFilter(DownloadManager.ACTION_DOWNLOAD_COMPLETE));
             }
-            bitmap = BitmapFactory.decodeFile(f.getAbsolutePath());
-            post_image.setImageBitmap(bitmap);
-                //Picasso.with(ctx).load(image).into(post_image);
-            //}
+            else {
+                bitmap = BitmapFactory.decodeFile(f.getAbsolutePath());
+                p = mView.findViewById(R.id.image);
+                if (bitmap.getHeight() < bitmap.getWidth()) {
+                    post_image.setImageBitmap(bitmap);
+                    p.setImageBitmap(bitmap);
+                    mView.findViewById(R.id.cr).setVisibility(View.GONE);
+                } else {
+                    disable();
+                    r.setImageBitmap(bitmap);
+                    Resources r = getApplicationContext().getResources();
+                    CardView cardView = mView.findViewById(R.id.rl);
+                    ViewGroup.LayoutParams layoutPara = cardView.getLayoutParams();
+                    layoutPara.height = (int) TypedValue.applyDimension(TypedValue.COMPLEX_UNIT_DIP, 160, r.getDisplayMetrics());
+                    RelativeLayout.LayoutParams layoutParams = new RelativeLayout.LayoutParams(RelativeLayout.LayoutParams.WRAP_CONTENT, RelativeLayout.LayoutParams.WRAP_CONTENT);
+                    layoutParams.addRule(RelativeLayout.BELOW, R.id.post_title);
+                    layoutParams.setMargins((int) TypedValue.applyDimension(TypedValue.COMPLEX_UNIT_DIP, 15, r.getDisplayMetrics()), (int) TypedValue.applyDimension(TypedValue.COMPLEX_UNIT_DIP, 5, r.getDisplayMetrics()), (int) TypedValue.applyDimension(TypedValue.COMPLEX_UNIT_DIP, 120, r.getDisplayMetrics()), 0);
+                    post_desc.setLayoutParams(layoutParams);
+                    post_desc.setMaxLines(2);
+                    RelativeLayout.LayoutParams layoutParam = new RelativeLayout.LayoutParams(RelativeLayout.LayoutParams.WRAP_CONTENT, RelativeLayout.LayoutParams.WRAP_CONTENT);
+                    layoutParam.setMargins((int) TypedValue.applyDimension(TypedValue.COMPLEX_UNIT_DIP, 15, r.getDisplayMetrics()), (int) TypedValue.applyDimension(TypedValue.COMPLEX_UNIT_DIP, 15, r.getDisplayMetrics()), (int) TypedValue.applyDimension(TypedValue.COMPLEX_UNIT_DIP, 15, r.getDisplayMetrics()), 0);
+                    post_title.setMaxLines(2);
+                    post_title.setLayoutParams(layoutParam);
+                    RelativeLayout Rlayout = mView.findViewById(R.id.rela);
+                    Rlayout.setGravity(Gravity.BOTTOM);
+                    Rlayout.setPadding(Rlayout.getPaddingLeft(), Rlayout.getPaddingTop(), Rlayout.getPaddingRight(), (int) TypedValue.applyDimension(TypedValue.COMPLEX_UNIT_DIP, 10, r.getDisplayMetrics()));
+                    RelativeLayout.LayoutParams layout = (RelativeLayout.LayoutParams) Rlayout.getLayoutParams();
+                    //layout.addRule(RelativeLayout.BELOW,R.id.RI);
+                    layout.addRule(RelativeLayout.ALIGN_PARENT_BOTTOM);
+                    //layout.setMargins(layout.leftMargin,layout.topMargin,layout.rightMargin,(int) TypedValue.applyDimension(TypedValue.COMPLEX_UNIT_DIP,15,r.getDisplayMetrics()));
+                    Rlayout.setLayoutParams(layout);
+                }
+            }
         }
         }
     }

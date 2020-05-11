@@ -1,0 +1,128 @@
+<?xml version="1.0" encoding="utf-8"?>
+<ScrollView xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    tools:context=".about_us"
+    tools:ignore="ScrollViewCount">
+    <RelativeLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content">
+        <TextView
+            android:id="@+id/titleVis"
+            android:layout_width="match_parent"
+            android:textAlignment="center"
+            android:textSize="22sp"
+            android:fontFamily="sans-serif-black"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="25sp"
+            android:text="@string/vision_amp_mission"/>
+    <androidx.cardview.widget.CardView
+        android:id="@+id/viscard"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_marginRight="15sp"
+        android:layout_marginLeft="15sp"
+        app:cardCornerRadius="15sp"
+        android:elevation="10sp"
+        android:layout_below="@+id/titleVis"
+        android:layout_marginTop="15sp"
+        ><RelativeLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content">
+
+        <TextView
+            android:id="@+id/vist"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:fontFamily="sans-serif-medium"
+            android:textColor="#6ec1e4"
+            android:layout_marginStart="15sp"
+            android:layout_marginEnd="15sp"
+            android:textSize="20sp"
+            android:layout_marginTop="15sp"
+            android:text="@string/our_vision"/>
+        <TextView
+            android:id="@+id/vis"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_below="@+id/vist"
+            android:layout_marginTop="5sp"
+            android:fontFamily="sans-serif"
+            android:textSize="18sp"
+            android:textStyle="bold"
+            android:layout_marginStart="15sp"
+            android:layout_marginEnd="15sp"
+            android:layout_marginBottom="10sp"
+            android:text="
+    \u2022 To promote excellence in the technical education and scientific research for the benefit of the society"/>
+    </RelativeLayout>
+    </androidx.cardview.widget.CardView>
+        <androidx.cardview.widget.CardView
+            android:id="@+id/Miscard"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginEnd="15sp"
+            android:layout_marginStart="15sp"
+            android:layout_marginTop="15sp"
+            android:layout_below="@+id/viscard"
+            app:cardCornerRadius="15sp"
+            android:elevation="10sp"
+            >
+            <RelativeLayout
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:gravity="center_horizontal">
+
+            <TextView
+                android:id="@+id/mtit"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:fontFamily="sans-serif-medium"
+                android:textColor="#6ec1e4"
+                android:layout_marginStart="15sp"
+                android:layout_marginEnd="15sp"
+                android:textSize="20sp"
+                android:layout_marginTop="15sp"
+                android:text="@string/our_mission"/>
+            <TextView
+                android:id="@+id/mis"
+                android:layout_below="@+id/mtit"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:fontFamily="sans-serif"
+                android:layout_marginStart="15sp"
+                android:layout_marginEnd="15sp"
+                android:textSize="18sp"
+                android:textStyle="bold"
+                android:layout_marginTop="15sp"
+                android:textAlignment="viewStart"
+                android:text="
+    \u2022 To provide quality technical education to fulfill the aspiration of the student and to meet the needs of the Industry\n
+    \u2022 To provide holistic learning ambience\n
+    \u2022 To impart skills leading to employability and entrepreneurship\n
+    \u2022 To establish effective linkage with Industries\n
+    \u2022 To promote Research and Development activities\n
+    \u2022 To offer services for the development of society through Education and Technology\n"/>
+            </RelativeLayout>
+        </androidx.cardview.widget.CardView>
+        <com.google.android.material.button.MaterialButton
+            android:id="@+id/btn"
+            android:theme="@style/Theme.MaterialComponents"
+            style="@style/Widget.AppCompat.Button.Borderless.Colored"
+            android:backgroundTint="@color/tool"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_below="@+id/Miscard"
+            android:textColor="@android:color/white"
+            android:layout_marginTop="15sp"
+            android:layout_marginEnd="15sp"
+            android:text="Back  "
+            android:layout_marginBottom="15sp"
+            android:elevation="5sp"
+            android:layout_alignParentRight="true"
+            android:drawableLeft="@android:drawable/ic_media_previous"
+            tools:ignore="HardcodedText,RtlHardcoded" />
+    </RelativeLayout>
+</ScrollView>
